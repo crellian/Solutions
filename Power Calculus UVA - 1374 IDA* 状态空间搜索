@@ -1,0 +1,52 @@
+#include<cstdio>
+#include<cstring>
+using namespace std;
+
+int n, a[14]; //注意选择设定的状态
+
+bool dfs(int d, int maxd)
+{
+    if (a[d] == n)
+        return true;
+    if (d == maxd) //若当d达到maxd然而仍然达不到目标状态，则退出并返回错//添上这一语句是因为后续剪枝判断不充分，漏掉一些情况
+        return false;
+    int maxv = -1;
+    for(int i=0;i<=d;i++)
+        if (maxv < a[i])
+        {
+            maxv = a[i];
+        }
+    if ((maxv << (maxd - d)) < n) //剪枝
+        return false;
+    for (int i = d; i >= 0; i--)//结点排序
+    {
+        a[d + 1] = a[d] + a[i];//结点排序
+        if(dfs(d + 1, maxd))//用if迭代返回
+            return true;
+        a[d + 1] = a[d] - a[i];
+        if (dfs(d + 1, maxd))
+            return true;
+    }
+    return false;
+}
+
+int solve(int n)
+{
+    if (n == 1) //零输入
+        return 0;
+    a[0] = 1;
+    const int max_ans = 13;// we got it by experimenting
+    for (int maxd = 1; maxd < max_ans; maxd++)
+        if (dfs(0, maxd))
+            return maxd;//搜索成功必到达maxd，因此返回maxd
+    return max_ans;
+}
+
+
+int main()
+{
+    while (scanf("%d", &n) && n)
+    {
+        printf("%d\n", solve(n));
+    }
+}
