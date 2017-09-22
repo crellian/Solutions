@@ -1,0 +1,138 @@
+#include<cstdio>
+#include<queue>
+#include<cstring>
+//#include<vector>
+#include<cctype>
+using namespace std;
+const int maxs = 20, maxn = 150;//
+char map[maxs][maxs];    //原图
+
+int d[maxn][maxn][maxn];  //隐式图状态结点属性
+int s[4], t[4];  //记录起点与终点对应隐式图状态编号
+const int dx[] = { 1,-1,0,0,0 }; // 4 moves, plus "no move"
+const int dy[] = { 0,0,1,-1,0 };
+int id[maxs][maxs]; //给新图中结点编号，同时储存其坐标作为属性//用数组存储而非结构体以达到双向查询目的
+int x[maxn], y[maxn];
+
+//vector<int> G[maxn];     //从原图中提取可行路径作为新图
+int deg[maxn], G[maxn][5]; //用vector超时，此处用deg储存size，G储存上下左右中可行结点序号
+inline int ID(int a, int b, int c) //将状态隐式图结点编号化为一个整数
+{
+    return (a << 16) | (b << 8) | c;
+}
+
+inline bool conflict(int a, int b, int a2, int b2) 
+{
+    return a2 == b2 || (a2 == b && b2 == a);
+}
+
+int bfs()
+{
+    queue<int> q;
+    memset(d, -1, sizeof(d)); //将结点属性初始化为-1，用于判重
+    d[s[0]][s[1]][s[2]] = 0;
+    q.push(ID(s[0],s[1],s[2]));
+
+    while (!q.empty())
+    {
+        int u = q.front();
+        q.pop();
+        int a = (u >> 16) & 0xff, b = (u >> 8) & 0xff, c = u & 0xff; //提取隐式图结点编号
+        if (a == t[0] && b == t[1] && c == t[2]) 
+            return d[a][b][c]; // 终点退出bfs函数
+        //for (int i = 0; i < G[a].size(); i++)
+        for (int i = 0; i < deg[a]; i++)//隐式图结点移动遍历
+        {
+            int a2 = G[a][i];
+            //for (int j = 0; j< G[b].size(); j++)
+            for (int j = 0; j < deg[b]; j++)
+            {
+                int b2 = G[b][j];
+                if (conflict(a, b, a2, b2)) continue;
+                //for (int k = 0; k < G[c].size(); k++)
+                for (int k = 0; k < deg[c]; k++)
+                {
+                    int c2 = G[c][k];
+                    if (conflict(a, c, a2, c2)) continue;
+                    if (conflict(c, b, c2, b2)) continue;
+
+                    if (d[a2][b2][c2] != -1) continue; //判重
+
+                    d[a2][b2][c2] = d[a][b][c] + 1; //遍历隐式图结点属性变化
+                    q.push(ID(a2, b2, c2));
+                }
+            }
+        }
+    }
+    return -1;
+}
+
+int main()
+{
+    int w, h, n;
+    while (scanf("%d%d%d\n", &w, &h, &n) && w)//用到fgets则需读取\n
+    {
+        memset(map,0,sizeof(map));
+        memset(x, 0, sizeof(x));
+        memset(y, 0, sizeof(y));
+        memset(id, 0, sizeof(id));
+        memset(deg, 0, sizeof(deg));
+        //for (int i = 0; i < maxn; i++)
+            //G[i].clear();
+        for (int i = 0; i < h; i++)
+            fgets(map[i], 20, stdin);
+
+
+        int cnt = 0;//用于给新图编号
+        for(int i=0;i<h;i++)//读入处理新图
+            for (int j = 0; j < w; j++) 
+            {
+                if (map[i][j] != '#')
+                {
+                    if (islower(map[i][j]))
+                    {
+                        s[map[i][j] - 'a'] = cnt;
+                    }
+                    else if (isupper(map[i][j]))
+                    {
+                        t[map[i][j] - 'A'] = cnt;
+                    }
+                    x[cnt] = i;
+                    y[cnt] = j;
+                    id[i][j] = cnt++;//from 0 //给新图结点编号，记录属性（坐标）
+                }
+            }
+
+        for (int i = 0; i < cnt; i++)//建新图
+        {
+            for (int dir = 0; dir < 5; dir++)
+            {
+                int nx = x[i] + dx[dir];
+                int ny = y[i] + dy[dir];
+                if (map[nx][ny] != '#')
+                {
+                    //G[i].push_back(id[nx][ny]);
+                    G[i][deg[i]++] = id[nx][ny];
+                }
+            }
+        }
+
+        if (n <= 2) //当输入情况小于三时，创造虚拟结点，使得针对于三的程序依然可行
+        { 
+            deg[cnt] = 1; 
+            G[cnt][0] = cnt;
+            //G[cnt].push_back(cnt);
+            s[2] = t[2] = cnt++; 
+        }
+        if (n <= 1) 
+        { 
+            deg[cnt] = 1; 
+            G[cnt][0] = cnt;
+            //G[cnt].push_back(cnt);
+            s[1] = t[1] = cnt++; 
+        }
+
+        printf("%d\n", bfs());
+    }
+    return 0;
+}
