@@ -1,0 +1,82 @@
+#include<cstdio>
+#include<vector>
+#include<algorithm>
+#include<cstring>
+using namespace std;
+const int maxn = 6;
+
+int vis[1 << maxn];
+double r, w[1 << maxn];
+
+
+struct Tree
+{
+    double L, R;
+    Tree():L(0), R(0) {}
+};
+
+vector<Tree> tree[1 << maxn];//每棵子树的属性有左右长度、包含结点以及重量。以包含结点的二分配为节点（每个节点可代表多种子树）建立新树。其中包含结点以二进制集合用作节点标号；包含结点所能组成的所有可能二叉树左右长度用结构体vector表示为节点特有属性，递归求解，dfs目的；重量只与包含结点有关，不必递归处理，用数组存储
+
+void dfs(int subset)
+{
+    if (vis[subset])
+        return;
+    vis[subset] = true;
+    bool have_children = false;//到子叶终止
+    for (int left = (subset - 1)&subset; left; left = (left - 1)&subset) //枚举不同二分集合
+    {
+        have_children = true;
+
+        int right = subset^left;
+
+        double d1 = w[right] / w[subset];
+        double d2 = w[left] / w[subset];
+
+        dfs(left); dfs(right);//递归直至子叶
+
+        for (int i = 0; i < tree[left].size(); i++)  //向上回溯合并求解节点的属性
+            for (int j = 0; j < tree[right].size(); j++)
+            {
+                Tree t;
+                t.L = max(tree[left][i].L + d1, tree[right][j].L - d2);
+                t.R = max(tree[right][j].R + d2, tree[left][i].R - d1);
+                if (t.L + t.R < r)
+                    tree[subset].push_back(t);
+            }
+    }
+    if (!have_children)
+        tree[subset].push_back(Tree());//到子叶终止
+}
+
+
+int main()
+{
+    int T;
+    scanf("%d", &T);
+    while (T--)
+    {
+        memset(vis, 0, sizeof(vis));
+        memset(w, 0, sizeof(w));
+        int s;
+        scanf("%lf%d", &r, &s);
+        for (int i = 0; i < s; i++)
+        {
+            scanf("%lf", &w[1 << i]);
+        }
+        for (int i = 0; i < (1 << s); i++)
+        {
+            tree[i].clear();  //捎带初始化//注意初始化位置，既要及时，又要避免将输入清除
+            for (int j = 0; j < s; j++)
+            {
+                if (i&(1 << j) && i!= (1 << j))
+                    w[i] += w[1 << j];
+            }
+        }
+        dfs((1 << s) - 1);
+
+        double ans = -1;
+        for (int i = 0; i < tree[(1 << s) - 1].size(); i++)
+            ans = max(ans, tree[(1 << s) - 1][i].L + tree[(1 << s) - 1][i].R);
+        printf("%.10lf\n", ans);
+    }
+}
