@@ -1,0 +1,124 @@
+#include<cstdio>
+#include<vector>
+#include<cstring>
+#include<map>
+//#include<sstream>
+using namespace std;
+const int maxn = 9 + 1, INF = 1000;
+vector<int> G[maxn];
+map<char, int> ID;
+map<int, char> antiID;
+int A[maxn];
+int n;
+int k;
+int ans[maxn];
+int pos[maxn];
+//int node;
+void dfs(int cur, int tmp) //tmp为解答树每条树枝特有的属性，为实现这种性质需将其作为每个递归内部定义变量，作为参数传递
+{
+    if (cur > n) //递归终止条件必须有
+    {
+        if (k > tmp)
+        {
+            k = tmp;
+            memcpy(ans, A, sizeof(ans));
+        }
+        return;
+    }
+    for (int i = 0; i < n; i++)
+    {
+        if (pos[i] > -1) //重复出现
+            continue;
+        int cnt = 0;
+        for (int j = 0; j < G[i].size(); j++)
+        {
+            int& v = G[i][j];
+            if (pos[v] > -1)
+            {
+                /*for (int m = 0; m < cur; m++)
+                {
+                if (A[m] == v)
+                {
+                if ((cur - 1 - m) >= k)  //剪枝
+                return;
+                if ((cur - 1 - m) > tmp)
+                tmp = (cur - 1 - m);
+                break;
+                }
+                }*/
+                if ((cur - 1 - pos[v]) >= k)  //剪枝//用pos数组记录排列
+                    return;
+                if ((cur - 1 - pos[v]) > tmp)
+                    tmp = (cur - 1 - pos[v]);
+                cnt++;
+            }
+        }
+        if ((G[i].size() - cnt) >= k) //剪枝
+                                      //return;
+            continue; //注意回溯或剪枝对应的return或continue的选择使用
+        A[cur - 1] = i;
+        pos[i] = cur - 1;
+        dfs(cur + 1, tmp);
+        A[cur - 1] = -1;  //全局变量在出口处修改
+        pos[i] = -1;
+    }
+}
+
+int main()
+{
+    char input[1000];
+    while (scanf("%s", input) == 1 && input[0] != '#')
+    {
+        memset(ans, 0, sizeof(ans));
+        memset(A, -1, sizeof(A));
+        memset(pos, -1, sizeof(pos));
+        for (int i = 0; i < 8; i++)
+            G[i].clear();
+        n = 0;
+        for (char i = 'A'; i <= 'H'; i++)
+        {
+            if (strchr(input, i) != NULL)  //输入处理，注意输入不一定从A开始，甚至不包含A
+            {
+                ID[i] = n;
+                antiID[n++] = i;
+            }
+        }
+
+
+        int len = strlen(input), p = 0, q = 0;
+        //vector<int> u, v;  //建图方式
+        for (;;) 
+        {
+            while (p < len && input[p] != ':') //输入处理
+                p++;
+            if (p == len) 
+                break;
+            while (q < len && input[q] != ';') 
+                q++;
+            for (int i = p + 1; i < q; i++) 
+            {
+                G[ID[input[p - 1]]].push_back(ID[input[i]]);
+                G[ID[input[i]]].push_back(ID[input[p - 1]]);
+            }
+            p++; q++;
+        }
+
+        k = INF;
+        dfs(1, -1);
+        for (int i = 0; i < n; i++)
+            printf("%c ", antiID[ans[i]]);
+        if (n == 1)
+            printf("-> 0\n");
+        else
+            printf("-> %d\n", k);
+    }
+}
+/*int main() {
+ {
+// 计算结点个数并给字母编号
+int n = 0;
+for (char ch = 'A'; ch <= 'Z'; ch++)
+
+id[ch] = n++;
+letter[id[ch]] = ch;
+}*/
