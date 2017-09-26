@@ -1,0 +1,74 @@
+#include <iostream>
+using namespace std;
+#include <stack>          //既要移动元素 又要删除空间的结合vector or list 和stack起来使用
+#include <vector>
+#include <cstring>
+
+struct CARD
+{
+    char a;
+    char b;
+    CARD(char c, char d) :a(c), b(d){}
+};
+bool judge(CARD c1,CARD c2)
+{
+    if (c1.a == c2.a || c1.b == c2.b)
+        return true;
+    return false;
+}
+int main()
+{
+    char s[3];
+    int i = 0;  
+    vector<stack<CARD>> cards;
+    bool remove = true;
+    while (cin >> s && s[0] != '#')
+    {   
+        stack<CARD> sta;  //在哪里定义很重要。。
+        CARD c(s[0], s[1]);
+        sta.push(c);
+        cards.push_back(sta);
+        if (cards.size() == 52)
+        {
+            while (remove)
+            {
+                remove = false;
+                for (i = 0; i < cards.size(); i++)
+                {
+                    if (i > 2 && judge(cards[i].top(), cards[i - 3].top()))
+                    {
+                        cards[i - 3].push(cards[i].top());
+                        cards[i].pop();
+                        remove = true;
+                        if (cards[i].empty())
+                            cards.erase(cards.begin() + i);
+                        break;
+                    }
+                    if (i > 0 && judge(cards[i].top(), cards[i - 1].top()))
+                    {
+                        cards[i - 1].push(cards[i].top());
+                        cards[i].pop();
+                        remove = true;
+                        if (cards[i].empty())
+                            cards.erase(cards.begin() + i);
+                        break;
+                    }
+                }
+            }
+            if (cards.size() == 1)
+                printf("%d pile remaining:", cards.size());
+            else
+                printf("%d piles remaining:", cards.size());
+            for (i = 0; i < cards.size(); i++)
+                {
+                    printf(" %d", cards[i].size());
+                }
+
+            printf("\n");
+            remove = true;
+            cards.clear();
+        }
+    }
+
+    return 0;
+}
