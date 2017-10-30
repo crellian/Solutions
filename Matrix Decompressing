@@ -1,0 +1,130 @@
+#include<iostream>
+#include<cmath>
+#include<algorithm>
+#include<cstring>
+#include<vector>
+#include<queue>
+using namespace std;
+const int maxn = 405, INF = 1000000;
+int d[maxn][maxn];//
+
+struct Edge
+{
+    int from, to, cap, flow;
+    Edge(int u, int v, int c, int f) :from(u), to(v), cap(c), flow(f) {}
+};
+struct EdmondsKarp
+{
+    int n, m;
+    vector<Edge> edges;
+    vector<int> G[maxn];
+    int a[maxn];
+    int p[maxn];
+
+    void init(int n)
+    {
+        for (int i = 0; i < n; i++)
+            G[i].clear();
+        edges.clear();
+    }
+    void AddEdge(int u, int v, int c)
+    {
+        edges.push_back(Edge(u, v, c, 0));
+        //edges.push_back(Edge(v, u, 0, 0));
+        m = edges.size();
+        G[u].push_back(m - 1);
+        //G[v].push_back(m - 1);
+    }
+    void MaxFlow(int s, int t)
+    {
+        int flow = 0;
+        for (;;)
+        {
+            memset(a, 0, sizeof(a));
+            queue<int> Q;
+            Q.push(s);
+            a[s] = INF;
+            while (!Q.empty())
+            {
+                int u = Q.front();
+                Q.pop();
+                for (int i = 0; i < G[u].size(); i++)
+                {
+                    Edge& e = edges[G[u][i]];
+                    if (!a[e.to] && e.cap > e.flow)
+                    {
+                        a[e.to] = min(a[u], e.cap - e.flow);
+                        Q.push(e.to);
+                        p[e.to] = G[u][i];
+                    }
+                }
+                if (a[t])
+                    break;
+            }
+            if (!a[t])
+                break;
+            for (int i = t; i != s; i = edges[p[i]].from)
+            {
+                edges[p[i]].flow += a[t];
+                //edges[p[i] ^ 1].flow -= a[t];
+            }
+            flow += a[t];
+        }
+        /*for (int i = 0; i < G[s].size(); i++)
+        {
+        Edge& e = edges[G[s][i]];
+        int first = 1;
+        for (int j = 0; j < G[e.to].size(); j++)
+        {
+        Edge& e1 = edges[G[e.to][j]];
+        if (first)
+        {
+        cout << e1.flow + 1;
+        first = 0;
+        }
+        cout << " " << e1.flow + 1;
+        }
+        cout << endl;
+        }*/
+        return;
+    }
+}E;
+int main()
+{
+    int R, C, T, cnt = 0;
+    cin >> T;
+    while (T--)
+    {
+        cin >> R >> C;
+        E.init(R + C + 2);
+        for (int i = 1; i <= R; i++)
+            for (int j = R + 1; j <= R + C; j++)
+            {
+                E.AddEdge(i, j, 19);
+                d[i][j] = E.edges.size() - 1;
+            }
+        int temp = 0, temp1;
+        for (int i = 1; i <= R; i++)
+        {
+            cin >> temp1;
+            E.AddEdge(0, i, temp1 - temp - C);
+            temp = temp1;
+        }
+        temp = 0;
+        for (int j = R + 1; j <= R + C; j++)
+        {
+            cin >> temp1;
+            E.AddEdge(j, R + C + 1, temp1 - temp - R);
+            temp = temp1;
+        }
+        cout << "Matrix " << ++cnt << endl;
+        E.MaxFlow(0, R + C + 1);
+        for (int i = 1; i <= R; i++)
+        {
+            for (int j = R + 1; j <= R + C; j++)
+                printf("%d ", E.edges[d[i][j]].flow + 1);
+            cout << endl;
+        }
+        cout << endl;
+    }
+}
