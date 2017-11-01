@@ -1,0 +1,77 @@
+#include<iostream>
+using namespace std;
+const int maxn = 550;
+int type[11] = { 3,6,9,12,10,5,7,11,13,14,15 };//二进制结合位运算表达方格状态
+char map[maxn + 5][maxn + 5];
+int par[maxn*maxn + 5]; //par数组仅可为int类型且为一维数组//相当于制作HASH表，由于方格状态会有重复，因而以坐标为参数更佳
+bool vertical = true;
+int cnt, M, N;
+void init(int n)
+{
+    for (int i = 1; i <= n; i++)
+    {
+        par[i] = i;
+    }
+    cnt = n;//将计数器初始化为总方格数，每当合并一个方格，减一
+}
+int find(int x)
+{
+    if (x != par[x])
+        //return find(par[x]);
+        par[x] = find(par[x]);//路径压缩
+    return par[x];
+}
+void unite(int ay, int ax, int by, int bx, bool vertical)
+{
+    if (!bx || !by)
+        return;
+    int a = type[map[ay][ax] - 'A'];
+    int b = type[map[by][bx] - 'A'];
+    if (vertical)
+    {
+        bool u = (a >> 1) & 1 && (b >> 3) & 1;
+        if (u)
+        {
+            int pa = find(N*(ay - 1) + ax);//?
+            int pb = find(N*(by - 1) + bx);
+            if (pa != pb)
+            {
+                par[pa] = pb;
+                cnt--;
+            }
+        }
+    }
+    else
+    {
+        bool l = a & 1 && (b >> 2) & 1;
+        if (l)
+        {
+            int pa = find(N*(ay - 1) + ax);
+            int pb = find(N*(by - 1) + bx);
+            if (pa != pb)
+            {
+                par[pa] = pb;
+                cnt--;
+            }
+        }
+    }
+}
+int main()
+{
+    while (cin >> M >> N&&M != -1 && N != -1)
+    {
+        if (M == -1 && N == -1)
+            break;
+        init(M*N);
+        for (int i = 1; i <= M; i++)  //每行输入字符间没有间隔
+            cin >> map[i] + 1;
+        for (int i = 1; i <= M; i++)
+            for (int j = 1; j <= N; j++)
+            {
+                unite(i, j, i-1, j, vertical);//每个方格的情况，需对上方及左方进行判断，而判断方式基本相同，因而可以加一参数vertical，从而一函两用
+                unite(i, j, i, j-1, !vertical);
+            }
+        cout << cnt << endl;
+    }
+    return 0;
+}
