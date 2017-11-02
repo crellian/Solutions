@@ -1,0 +1,69 @@
+#include
+
+#include
+
+#include
+
+#include
+
+using namespace std;
+
+long long volume[1005];
+
+long long value[1005];
+
+long long dp[1005][1005];
+
+int main()
+
+{
+
+ int T;
+
+ cin >> T;
+
+ while (T--)
+
+ {
+
+  memset(dp, 0, sizeof(dp));
+
+  memset(value, 0, sizeof(value));
+
+  memset(volume, 0, sizeof(volume));
+
+  int N, V;
+
+  cin >> N >> V;
+
+  for (int i = 1; i <= N; i++)
+
+   cin >> value[i];
+
+  for (int i = 1; i <= N; i++)
+
+   cin >> volume[i];
+
+  for (int i = 1; i <= N; i++)
+
+  for (int j = 0; j <= V; j++)             //j不能初始化为1
+
+  {
+
+   if (j >= volume[i])
+
+    dp[i][j] = max(dp[i - 1][j], dp[i - 1][j - volume[i]] + value[i]);
+
+   else
+
+    dp[i][j] = dp[i - 1][j];
+
+  }
+
+   cout << dp[N][V] << endl;
+
+ }
+
+ return 0;
+
+}
