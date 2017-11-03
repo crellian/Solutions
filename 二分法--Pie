@@ -1,0 +1,42 @@
+#include
+#include
+#include
+#define maxn 10005
+double S[maxn];
+const double PI = acos(-1.0);
+int N, F;
+using namespace std;
+double bs(double MaxS){
+ double Min = 0, Mid, Max = MaxS;
+ while (Max - Min>0.00001){                        //注意这里的循环条件
+  Mid = (Max + Min) / 2;
+  int sum = 0;
+  for (int i = 0; i < N; i++){
+   sum += S[i] / Mid;
+  }
+ if (sum>=F + 1){                            //这里原本将>与==两种情况分开
+   Min = Mid;                                      并且当sum==F+1时直接退出并返回Mid值作为结果，结果错误
+  }
+  else Max = Mid;
+ }
+ return Max;                                    //return Max or Min均可
+}
+int main(){
+ int T;
+ cin >> T;
+ while (T--){
+  double MaxS = -1,r;                    //为了比较并储存最值预先将之设为-1
+  double ans;                              
+  cin >> N >> F;
+  for (int i = 0; i < N; i++){
+   cin >> r;
+   S[i] = r*r*PI;
+   if (MaxS < S[i]){
+    MaxS = S[i];
+   }
+  }
+  ans = bs(MaxS);
+  printf("%.4f\n", ans);
+ }
+ return 0;
+}
