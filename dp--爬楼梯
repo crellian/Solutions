@@ -1,0 +1,29 @@
+#include
+
+int dp[50] = {0, 1, 2 };
+
+int main()
+
+{
+
+ int T,n; 
+
+ scanf("%d", &T);
+
+ while (T--)
+
+ {
+
+  scanf("%d", &n);
+
+  for (int i =3; i <= n; i++)                        //状态转移
+
+   dp[i] = dp[i - 1] + dp[i - 2];
+
+  printf("%d\n", dp[n]);
+
+ }
+
+ return 0;
+
+}
