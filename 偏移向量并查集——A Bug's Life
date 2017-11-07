@@ -1,0 +1,81 @@
+#include<cstdio>
+#include<iostream>
+using namespace std;
+int par[2005];
+int d[2005];   //偏移向量
+//const int same = 0, diff = 1;
+int flag;
+/*int find(int x)
+{
+    int t;
+    if (x != par[x])//
+    {
+        t = find(par[x]);
+        d[x] = (d[x] + d[par[x]]) %2;
+        return t;
+    }
+    return par[x];
+}*/
+int find(int x)
+{
+    int t;
+    if (x != par[x])
+    {
+        t = par[x];
+        par[x]= find(par[x]);        //路径压缩
+        d[x] = (d[x] + d[t]) % 2;
+    }
+    return par[x];
+}
+void init(int n)
+{
+    for (int i = 1; i <= n; i++)
+    {
+        par[i] = i;
+        d[i] = 0;
+    }
+    flag = 1;
+}
+void unite(int a, int b)
+{
+    int a_par = find(a);
+    int b_par = find(b);
+    if (a_par != b_par)
+    {
+        par[a_par] = b_par;
+        //d[a_par] = diff;  不可
+        d[a_par] = (d[b] + 1 - d[a]) % 2;
+    }
+    find(a);
+}
+int main()
+{
+    int T, cnt = 0;
+    cin >> T;
+    while (T--)
+    {
+        int n, m;
+        cin >> n >> m;
+        init(n);
+        for (int i = 0; i < m; i++)
+        {
+            int a, b;
+            cin >> a >> b; 
+            if(flag)
+                unite(a, b);
+            if (d[a]==d[b])
+            {
+                flag = 0;
+                //break;       此处不应break  
+            }
+        }
+            cout << "Scenario #" << ++cnt << ":" << endl;
+            if (flag)
+                cout << "No suspicious bugs found!" << endl;  //注意大小写
+            else
+                cout << "Suspicious bugs found!" << endl;
+            cout << endl;
+
+    }
+    return 0;
+}
