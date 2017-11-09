@@ -1,0 +1,113 @@
+#include
+
+#include
+
+using namespace std;
+
+int pic[15][15];
+
+int cnt;
+
+bool judge(int i, int j, int N){
+
+ int flag = 1;
+
+ for (int k = 1; k
+
+ {
+
+  if (pic[k][j])
+
+  {
+
+   flag = 0;
+
+   break;
+
+  }
+
+ }
+
+ for (int k = 1; i - k>0 && j - k>0; k++){
+
+  if (pic[i - k][j - k])
+
+  {
+
+   flag = 0;
+
+  }
+
+ }
+
+ for (int k = 1; i - k>0 && j + k <= N; k++){
+
+  if (pic[i - k][j + k])
+
+  {
+
+   flag = 0;
+
+  }
+
+ }
+
+ if (flag){
+
+  return true;
+
+ }
+
+ else return false;
+
+}
+
+void Trial(int i, int N){
+
+ if (i > N){
+
+  cnt++;
+
+  return;
+
+ }
+
+ else
+
+ for (int j = 1; j <= N; j++){
+
+  pic[i][j] = 1;
+
+  if (judge(i, j, N))
+
+   Trial(i + 1, N);
+
+  pic[i][j] = 0;
+
+ }
+
+}
+
+int main(){
+
+ int N;
+
+ while (cin >> N){
+
+  if (N == 0)
+
+   break;
+
+  cnt = 0;
+
+  memset(pic, 0, sizeof(pic));
+
+  Trial(1, N);
+
+  cout << cnt << endl;
+
+ }
+
+ return 0;
+
+}
