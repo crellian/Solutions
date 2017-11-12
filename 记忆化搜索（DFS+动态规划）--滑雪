@@ -1,0 +1,52 @@
+#include
+using namespace std;
+const int maxn = 105;
+int map[maxn][maxn];
+int idx[maxn][maxn];                     //using for recording the biggest length of
+                //all routes from a certain node
+int dir[4][2] = { { 1, 0 }, { 0, 1 }, { -1, 0 }, { 0, -1 } };  //遍历四向方格方法（带*号行）
+int R, C;
+int dfs(int x, int y)
+{
+ if (idx[x][y])                           //避免重复计算，剪枝
+  return idx[x][y];
+ int dx, dy;                     
+ for (int i = 0; i < 4; i++)                 //*
+ {
+  dx = x + dir[i][0];       //*
+  dy = y + dir[i][1];       //*
+  if (dx >= 0 && dx= 0 && dy
+  if (map[dx][dy] < map[x][y])////*
+  {
+   int temp = dfs(dx, dy);      //暂时用temp代替dfs（）返回值
+   if (idx[x][y] <= temp)  //若>，为得到连接多条后续路径的某结点其中最长一条长度，跳过
+    idx[x][y] = temp + 1;  //此结点比下一结点长一
+  }
+ }
+ return idx[x][y];
+}
+int main()
+{
+ while (cin >> R >> C)
+ {
+  memset(map, 0, sizeof(map));
+  memset(idx, 0, sizeof(idx));
+  for (int i = 0; i < R; i++)
+  for (int j = 0; j < C; j++)
+   cin >> map[i][j];//
+  int max = -1;    //max计算多组数据最值法
+  for (int i = 0; i < R; i++)
+  for (int j = 0; j < C; j++)     //遍历所有结点作为起点情况，idx为全局，局面保存，
+         //在图内遇到其它结点可立刻获得
+         //此结点所连最大路径长度，大剪枝
+  {
+   int temp = dfs(i, j);
+   if (max < temp)
+   {
+    max = temp;
+   }
+  }
+  cout << max + 1 << endl;    //别忘长度还需要+1
+ }
+ return 0;
+}
