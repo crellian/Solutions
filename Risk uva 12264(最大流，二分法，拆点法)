@@ -1,0 +1,198 @@
+#include<iostream>
+#include<queue>
+#include<cmath>
+#include<cstring>
+#include<vector>
+#include<algorithm>
+#include<string>
+using namespace std;
+const int maxn = 250, INF = 10000000;  //需改
+int a[maxn], mark[maxn];
+string map[maxn];
+struct Edge
+{
+    int from, to, cap, flow;
+    Edge(int u, int v, int c, int f) :from(u), to(v), cap(c), flow(f) {}
+};
+struct EdmondsKarp
+{
+    int n, m;
+    vector<Edge> edges;
+    vector<int> G[maxn];
+    int a[maxn];
+    int p[maxn];
+
+    void init(int n)
+    {
+        this->n = n;
+        for (int i = 0; i < n; i++)
+        {
+            G[i].clear();
+        }
+        edges.clear();
+        memset(p, 0, sizeof(p));//不需要？
+    }
+    void AddEdge(int u, int v, int c)
+    {
+        edges.push_back(Edge(u, v, c, 0));
+        edges.push_back(Edge(v, u, 0, 0));
+        m = edges.size();
+        G[u].push_back(m - 2);
+        G[v].push_back(m - 1);
+    }
+    int MaxFlow(int s, int t)
+    {
+        int flow = 0;
+        for (;;)
+        {
+            memset(a, 0, sizeof(a));
+            queue<int> Q;
+            Q.push(s);
+            a[s] = INF;
+            while (!Q.empty())
+            {
+                int u = Q.front();
+                Q.pop();
+                for (int i = 0; i < G[u].size(); i++)
+                {
+                    Edge& e = edges[G[u][i]];
+                    if (!a[e.to] && e.cap > e.flow)
+                    {
+                        a[e.to] = min(a[u], e.cap - e.flow);
+                        Q.push(e.to);
+                        p[e.to] = G[u][i];
+                    }
+                }
+                if (a[t])
+                    break;
+            }
+            if (!a[t])
+                break;
+            for (int i = t; i != s; i = edges[p[i]].from)
+            {
+                edges[p[i]].flow += a[t];
+                edges[p[i] ^ 1].flow -= a[t];
+            }
+            flow += a[t];
+        }
+        return flow;
+    }
+}E;
+
+int Build(int val,int N)
+{
+    /*for (int i = 1; i <= n; i++)  //WA
+    {
+        if (a[i])
+        {
+            E.AddEdge(0, i, a[i]);
+            E.AddEdge(i, n + i, a[i]);
+        }
+    }
+    int flag = 0;
+    for (int i = 1; i <= n; i++)
+    {
+        for (int j = 1; j <= n; j++)
+        {
+            if (map[i][j] == 'Y')
+            {
+                if (a[i] && a[j])  //我我交界
+                {
+                    E.AddEdge(i, n + j, INF);//1.无向2.容量INF/a[i]
+                    //E.AddEdge(n + i, 2 * n + 1, 1);//合并循环时一定注意，可能实际上并不能合并
+                    if(!flag)
+                        mark[i] = 2;
+                }
+                else if (a[i] && !a[j]) //敌我交界
+                {
+                    mark[i] = 1;
+                    flag = 1;
+                }
+            }
+        }
+    }
+    int ans = 0; //总容量
+    for (int i = 1; i <= n; i++)
+    {
+        if (mark[i] == 1)
+        {
+            E.AddEdge(n + i, 2 * n + 1, val);
+            ans += val;
+        }
+        else if (mark[i] == 2)
+        {
+            E.AddEdge(n + i, 2 * n + 1, 1);
+            ans++;
+        }
+    }
+    return ans;*/  
+
+    for (int i = 1; i <= N; i++)   //AC
+    {
+        if (!a[i]) 
+            continue;
+        E.AddEdge(0, i, a[i]);
+        E.AddEdge(i, i + N, a[i]);
+        for (int j = 1; j <= N; j++)
+            if (map[i][j] == 'Y')
+            {
+                if (!a[j]) 
+                    mark[i] = true;
+                else 
+                    E.AddEdge(i, j + N, INF);
+            }
+    }
+    int ans = 0;
+    for (int i = 1; i <= N; i++)
+        if (mark[i]) 
+        { 
+            E.AddEdge(i + N, 2 * N + 1, val); ans += val; 
+        }
+        else if (a[i]) 
+        { 
+            E.AddEdge(i + N, 2 * N + 1, 1); 
+            ans++; 
+        };
+        return ans;
+}
+void solve(int n)
+{
+    int a, b, ans;
+    int l = 0, r = 10010;
+    while (l<r)
+    {
+        E.init(2 * n + 2); //注意初始化位置，由此影响到每次循环中，不止容量需要修改，整个图都要重建
+        int mid = (l + r) >> 1;
+        a = Build(mid, n);
+        b = E.MaxFlow(0, 2 * n + 1);
+        if (a == b)
+        {
+            l = mid + 1;
+            ans = mid;
+        }
+        else r = mid;
+    }
+    cout << ans << endl;
+}
+int main()
+{
+    int T;
+    cin >> T;
+    while (T--)
+    {
+        memset(a, 0, sizeof(a));
+        memset(mark, 0, sizeof(mark));
+        for (int i = 0; i < maxn; i++)
+            map[i].clear();
+        int n;
+        cin >> n;
+        for (int i = 1; i <= n; i++)
+            cin >> a[i];
+        for (int i = 1; i <= n; i++)
+        {
+            cin >> map[i];
+            map[i] = '0' + map[i];  //为了编号从1开始//'0' + map[i] 不等于  map[i] + '0'
+        }
+        solve(n);
+    }
+}
