@@ -1,0 +1,45 @@
+#define _CRT_SECURE_NO_DEPRECATE
+#include
+#include
+using namespace std;
+const int maxn = 25;
+char pic[maxn][maxn];
+int W, H, idx[maxn][maxn];
+int cnt = 0;
+void dfs(int i, int j){
+ if (i<0 || i >= H || j < 0 || j >= W){
+  return;
+ }
+ if (idx[i][j]>0 || pic[i][j] == '#')
+  return;
+ //cout << "here";
+ idx[i][j] = 1;
+ cnt++;
+ //cout << cnt;
+ for (int di = -1; di <= 1; di++)
+ for (int dj = -1; dj <= 1; dj++)
+ {
+  if (!(di&&dj))
+  dfs(i + di, j + dj);
+ }
+ return;
+}
+int main(){
+ while (cin >> W >> H&&W&&H)    //以0，0结束
+ {
+  cnt = 0;
+  memset(idx, 0, sizeof(idx));
+  for (int i = 0; i < H; i++)
+   scanf("%s", pic[i]);
+  for (int i = 0; i
+  for (int j = 0; j
+  if (pic[i][j] == '@')
+  {
+  //cout << pic[i][j];
+   dfs(i, j);
+   cout <<cnt << endl;
+   break;
+  }
+ }
+ return 0;
+}
