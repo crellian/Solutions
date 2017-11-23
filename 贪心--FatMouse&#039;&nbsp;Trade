@@ -1,0 +1,85 @@
+#include
+
+#include
+
+#include
+
+using namespace std;
+
+struct Room                                  //struct必须在cmp前
+
+{
+
+ int J;
+
+ int F;
+
+ double JF;
+
+}room[10005];                              //3个数相关联
+
+bool cmp(const Room a, const Room b)
+
+{
+
+ return a.JF > b.JF;                    //>为升序，<为降序
+
+}
+
+int main()
+
+{
+
+ int M, N;
+
+ while (cin >> M >> N&&(N!=-1)&&(M!=-1))
+
+ {
+
+  for (int i = 0; i < N;i++)
+
+  {
+
+   cin >> room[i].J >> room[i].F;
+
+   room[i].JF = (double)room[i].J / room[i].F;
+
+  }
+
+  sort(room, room + N, cmp);           //结构体排序（若数列从1开始，则需在起末位置各+1
+
+  double ans=0;
+
+  for (int i = 0; i < N; i++)  //挨个房间换豆子直到不够换某一个房间所有豆子，按比例换并退出
+
+  {
+
+   if ((M - room[i].F) >= 0)
+
+   {
+
+    ans += room[i].J;
+
+    M = M - room[i].F;
+
+   }
+
+   else
+
+   {
+
+    ans += M*room[i].JF;
+
+    break;
+
+   }
+
+  }                                        
+
+  printf("%.3lf\n", ans);
+
+ }
+
+ return 0;
+
+}
