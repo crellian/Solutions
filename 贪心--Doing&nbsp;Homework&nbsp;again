@@ -1,0 +1,91 @@
+#include
+
+#include
+
+#include
+
+using namespace std;
+
+struct Hw
+
+{
+
+ int date;
+
+ int score;
+
+}hw[1005];
+
+int schedule[1005];
+
+bool cmp(const Hw a, const Hw b)
+
+{
+
+ return a.score > b.score;
+
+}
+
+int main()
+
+{
+
+ int T;
+
+ scanf("%d", &T);
+
+ while (T--)
+
+ {
+
+  int ans = 0;
+
+  memset(schedule, 0, sizeof(schedule));
+
+  int N;
+
+  scanf("%d", &N);
+
+  for (int i = 0; i < N; i++)
+
+   scanf("%d", &hw[i].date);
+
+  for (int i = 0; i < N; i++)
+
+   scanf("%d", &hw[i].score);
+
+  sort(hw, hw + N,cmp);
+
+  for (int i = 0; i < N; i++)
+
+  {
+
+   int flag = 0;
+
+   for (int j = hw[i].date; j>0;j--)
+
+   if (!schedule[j])
+
+   {
+
+    schedule[j] = 1;
+
+    flag = 1;
+
+    break;
+
+   }
+
+   if (!flag)
+
+    ans += hw[i].score;
+
+  }
+
+  cout << ans << endl;
+
+ }
+
+ return 0;
+
+}
