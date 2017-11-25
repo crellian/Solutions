@@ -1,0 +1,27 @@
+#define _CRT_SECURE_NO_WARNINGS 
+#include<stdio.h>
+#include<cstring>
+#include<stdlib.h>
+int seq[1005];
+int dp[1005];
+int main()
+{
+	int N;
+	scanf("%d", &N);
+		memset(dp, 0, sizeof(dp));
+		for (int i = 1; i <= N; i++)
+			scanf("%d", &seq[i]);
+		int ans = -1;
+		for (int i = 1; i <= N; i++)
+		{
+			int max = -1;
+			for (int j = 1; j < i; j++)
+			if (seq[j]<seq[i] && dp[j]>max)
+				max = dp[j];
+			dp[i] = max + 1;
+			if (ans < dp[i])
+				ans = dp[i];
+		}
+		printf("%d\n", ans+1);
+	return 0;
+}
