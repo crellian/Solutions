@@ -1,0 +1,84 @@
+#include<iostream>
+#include<queue>
+#include<cstring>
+using namespace std;
+const int maxn = 20 + 2;
+
+struct Node
+{
+    int x, y;
+    Node(int x = 0, int y = 0) :x(x), y(y) {}
+
+    bool operator == (const Node& rhs) const
+    {
+        return x == rhs.x && y == rhs.y;
+    }
+};
+int m, n;
+
+int d[maxn][maxn];
+Node p[maxn][maxn];
+int type[maxn][maxn];
+int power[maxn][maxn];
+
+int dr[] = { -1,0,1,0 };
+int dc[] = { 0,1,0,-1 };
+
+bool in(int x,int y)
+{
+    return 0 <= x && x <= m - 1 && 0 <= y && y <= n - 1;
+}
+
+
+int BFS(int k)
+{
+    queue<Node> Q;
+    Node u(0,0);
+    Q.push(u);
+    memset(d, -1, sizeof(d));
+    memset(power, 0, sizeof(power));
+    d[0][0] = 0;
+    while (!Q.empty())
+    {
+        u = Q.front();
+        Q.pop();
+        if (u.x == m - 1 && u.y == n - 1)
+            return d[m - 1][n - 1];
+        for (int i = 0; i < 4; i++)
+        {
+            Node v(u.x + dr[i], u.y + dc[i]);
+            //即使是已经经过的点,若此次路线所经过的障碍累计总数更少，也可能再次经过，这与其他题不同
+            if (in(v.x, v.y) && power[u.x][u.y] + type[v.x][v.y] <= k && ( d[v.x][v.y] < 0 || ( d[v.x][v.y] == d[u.x][u.y] + 1 && power[u.x][u.y] + type[v.x][v.y] < power[v.x][v.y] ) ) )
+                {
+                    p[v.x][v.y] = u;
+                    d[v.x][v.y] = d[u.x][u.y] + 1;
+                    if (!type[v.x][v.y])
+                        power[v.x][v.y] = 0;
+                    else
+                        power[v.x][v.y] = power[u.x][u.y] + type[v.x][v.y];
+                    Q.push(v);
+                }
+        }
+    }
+    return -1;
+}
+
+
+int main()
+{
+    int T;
+    cin >> T;
+    while (T--)
+    {
+        cin >> m >> n;
+        int k;
+        cin >> k;
+        for (int i = 0; i < m; i++)
+            for (int j = 0; j < n; j++)
+            {
+                cin >> type[i][j];
+                p[i][j] = Node(i,j);
+            }
+        cout << BFS(k) << endl;
+    }
+}
