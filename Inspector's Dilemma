@@ -1,0 +1,74 @@
+#include<iostream>
+#include<cstring>
+#include<vector>
+using namespace std;
+
+const int maxn = 1000 + 5;
+int G[maxn][maxn];
+int degree[maxn];
+bool done[maxn];
+int V, E, T;
+vector<int> node;
+int cnt, first;
+
+void DFS(int u)
+{
+    done[u] = true;
+    node.push_back(u);
+
+    for (int i = 1; i <= V; i++)
+    {
+        if (G[u][i])
+        {
+            if (first)            //独点不计入连通块
+            {
+                cnt++;
+                first = 0;
+            }
+            degree[u]++;
+            if (!done[i])
+                DFS(i);
+        }
+    }
+}
+
+
+int main()
+{
+    int t = 0;
+    while (cin >> V >> E >> T && V)
+    {
+        memset(G,0,sizeof(G));
+        memset(done, 0, sizeof(done));
+        memset(degree, 0, sizeof(degree));
+        int a, b;
+        for (int i = 0; i < E; i++)
+        {
+            cin >> a >> b;
+            G[a][b] = 1;
+            G[b][a] = 1;
+        }
+        cnt = 0;
+        int ans = 0;
+        int temp;
+        for (int i = 1; i <= V; i++)
+            if (!done[i])
+            {
+                first = 1;                  //独点不计入连通块
+                temp = 0;
+                node.clear();
+                DFS(i);
+                //cnt++;//独点不计入连通块
+                for (int i = 0; i < node.size(); i++)
+                    if (degree[node[i]] % 2 == 1)
+                        temp++;
+                if(temp) //temp==0代表首尾相连
+                    ans += (temp - 2) / 2; //补边
+            }
+        if (cnt != 0)  //注意零输入
+            ans += (cnt - 1) + E; //连接连通块
+        else
+            ans = 0;
+        cout << "Case " << ++t << ": " << ans*T << endl;
+    }
+}
