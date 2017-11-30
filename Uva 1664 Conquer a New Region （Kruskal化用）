@@ -1,0 +1,93 @@
+#include<iostream>
+#include<queue>
+#include<cmath>
+#include<cstring>
+#include<vector>
+#include<algorithm>
+using namespace std;
+typedef long long LL;                                //int不够，WA.....
+const int maxn = 200010, INF = 10000000;  //需改
+
+struct Edge
+{
+    LL from, to, dist;
+    Edge(LL u, LL v, LL w) :from(u), to(v), dist(w) {}
+};
+bool cmp(const Edge &i, const Edge &j) //间接排序函数//注意定义顺序
+{
+    return i.dist > j.dist;
+}
+struct Kruskal
+{
+    int n, m;
+    vector<Edge> edges;
+    int p[maxn];
+    LL cnt[maxn];//每个顶点与之相连的顶点数(直接或间接)
+    LL cap[maxn];//每个顶点的总容量
+
+
+    void init(int n)
+    {
+        this->n = n;
+        edges.clear();
+        memset(p, 0, sizeof(p));//不需要？
+    }
+    void AddEdge(LL u, LL v, LL w)
+    {
+        edges.push_back(Edge(u, v, w));
+        m = edges.size();
+    }
+
+    int find(int x)              //并查集的查找
+    {
+        return p[x] == x ? x : p[x] = find(p[x]);
+    }
+
+    LL kruskal()
+    {
+        LL ans = 0;
+        for (int i = 0; i <= n; i++)  //注意循环中止==情况是否需要
+        {
+            p[i] = i;               //初始化并查集
+            cnt[i] = 1;
+        }
+        memset(cap, 0, sizeof(cap));
+        sort(edges.begin(), edges.end(), cmp);
+        for (int i = 0; i < m; i++)
+        {
+            int x = find(edges[i].from);
+            int y = find(edges[i].to);
+            cap[x] += cnt[y] * edges[i].dist;  //集合之一的根节点与另一个集合中任一点的容量都为该边长度
+            cap[y] += cnt[x] * edges[i].dist;
+            if (cap[x] > cap[y])
+            {
+                p[y] = x;
+                ans = cap[x];
+                cnt[x] += cnt[y];
+            }
+            else
+            //if (cap[y] > cap[x]) //注意不要落==情况
+            {
+                p[x] = y;
+                ans = cap[y];
+                cnt[y] += cnt[x];
+            }
+        }
+        return ans;
+    }
+}K;
+int main()
+{
+    int n;
+    while (cin >> n)
+    {
+        int a, b, c;
+        K.init(n);
+        for(int i=1;i<n;i++)
+        {
+            cin >> a >> b >> c;
+            K.AddEdge(a, b, c);
+        }
+        cout << K.kruskal() << endl; //别忘写输出.....
+    }
+}
