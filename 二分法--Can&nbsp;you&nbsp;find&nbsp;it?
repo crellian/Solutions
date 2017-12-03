@@ -1,0 +1,58 @@
+
+#include
+#include
+using namespace std;
+#define maxn 505
+int A[maxn], B[maxn], C[maxn], AB[maxn*maxn];      //合并数组为maxn*maxn
+int bs(int X, int n, int Ck)
+{
+ int m, a = 0, b = n - 1;
+ while (a <= b)
+ {
+  m = (a + b) / 2;
+  if (AB[m] + Ck == X) return 1;            //==情况单独列出
+  else if (AB[m] + Ck > X)
+   b = m - 1;
+  else
+   a = m + 1;
+ }
+ return 0;
+}
+int main(){
+ int L, N, M, S, X, cnt = 1;
+ while (cin >> L){
+  cin >> N >> M;
+  for (int i = 0; i < L; i++){
+   cin >> A[i];
+  }
+  for (int i = 0; i < N; i++){
+   cin >> B[i];
+  }
+  for (int i = 0; i < M; i++){
+   cin >> C[i];
+  }
+  int n = 0;
+  for (int i = 0; i < L; i++)
+  for (int j = 0; j < N; j++){               //求和合并数组
+   AB[n++] = A[i] + B[j];
+  }
+  sort(AB, AB + n);                           //排序并去重，为二分查找做准备
+  cin >> S;
+  cout << "Case " << cnt++ << ":" << endl;
+  while (S--){
+   cin >> X;
+   int ans = 0;
+   for (int i = 0; i < M; i++){
+    if (bs(X, n, C[i])){
+     ans = 1;
+     cout << "YES" << endl;
+     break;
+    }
+   }
+   if (!ans){
+    cout << "NO" << endl;
+   }
+  }
+ }
+ return 0;
+}
