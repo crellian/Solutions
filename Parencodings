@@ -1,0 +1,107 @@
+#include
+
+using namespace std;
+
+int S[10005];
+
+int main()
+
+{
+
+ int t,n;
+
+ cin >> t;
+
+ while (t--)
+
+ {
+
+  memset(S, 0, sizeof(S));
+
+  int i=0,a=0,temp=0,a0=0;
+
+  cin >> n;
+
+  while (n--)
+
+  {
+
+   cin >> a;
+
+   temp = a - a0;
+
+   for (int cnt = 0; cnt < temp; cnt++)
+
+   {
+
+    S[i] = 1;                         //用1/2表示左右括号
+
+    i++;
+
+   }
+
+   S[i] = 2;
+
+   i++;
+
+   a0 = a;
+
+  }                                        //输入同时转化储存部分
+
+  int flag = 0;
+
+  for (int k = 0; k < i; k++)
+
+  {
+
+   int j = k;
+
+   if (S[j] == 2)
+
+   {
+
+    int cnt = 1;
+
+    do
+
+    {
+
+     j--;
+
+     if (S[j] == 0)
+
+      cnt++;
+
+     if (S[j] == 1)
+
+     {
+
+      S[j] = 0;
+
+      break;
+
+     }
+
+    } while (j >= 0);
+
+    if (flag)
+
+     cout << " " << cnt;
+
+    else
+
+     cout << cnt;
+
+    flag = 1;
+
+   }
+
+  }
+
+  cout << endl;
+
+ }
+
+ return 0;
+
+}
