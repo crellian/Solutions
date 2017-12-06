@@ -1,0 +1,71 @@
+#include<cstdio>
+#include<iostream>
+#include<map>
+#include<string>
+using namespace std;
+int par[100005];
+int cnt;
+map<string, int> num;
+map<int, int> sum;
+void init()
+{
+    for (int i = 0; i < 100005; i++)
+    {
+        par[i] = i;
+        sum[i] = 1;
+    }                //为节时，两者合并遍历
+        cnt = 0;
+    num.clear();    //达到所有元素"初始化"为零目的
+}
+int find(int i)
+{
+    /*if (i == par[i])            //与没有进行路径压缩的原代码（超时）对比
+        return i;
+    return find(par[i]);*/
+    int r = i;
+    while (r != par[r])
+        r = par[r];
+    int j = i;
+    while (j != r)
+    {
+        int x = par[j];
+        par[j] = r;
+        j = x;
+    }
+    return r;
+}
+int unit(string a, string b)
+{
+    int apar = find(num[a]);
+    int bpar = find(num[b]);
+    if (apar != bpar)
+    {
+        par[apar] = bpar;
+        sum[bpar] += sum[apar];
+    }
+    return sum[bpar];
+}
+int main()
+{
+    int T;
+    string a, b;
+    while (scanf("%d", &T) != EOF)      //没有！=EOF导致超时！？
+    {
+        while (T--)
+        {
+            init();
+            int F;
+            scanf("%d", &F);
+            for (int i = 1; i <= F; i++)  //此处不能用while（F--）？
+            {
+                cin >> a >> b;               //不能用scanf（"%s %s",&a,&b)输入string类a b
+                if (!num[a])
+                    num[a] = ++cnt;
+                if (!num[b])
+                    num[b] = ++cnt;
+                cout << unit(a, b) << endl;
+            }
+        }
+    }
+    return 0;
+}
