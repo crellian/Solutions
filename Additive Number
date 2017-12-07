@@ -1,0 +1,57 @@
+class Solution{
+private:
+    bool solve(string num,int cur,long first,long second,int cnt)
+	{
+        int n=num.size();
+		if(first==-1)
+		{
+			if(cur>=n-2) 
+                return false;
+			if(num[cur]=='0') 
+                return solve(num,cur+1,0,-1,1);
+            
+			long tmp=0;
+			for(int i=cur;i<n;i++)
+			{
+				tmp=tmp*10+(num[i]-'0');
+				if(solve(num,i+1,tmp,-1,1)) 
+                    return true;
+			}
+
+			return false;
+		}
+		else if(second==-1)
+		{
+			if(cur>=n-1) 
+                return false;
+			if(num[cur]=='0') 
+                return solve(num,cur+1,first,0,2);
+			long tmp=0;
+			for(int i=cur;i<n;i++)
+			{
+				tmp=tmp*10+(num[i]-'0');
+				if(solve(num,i+1,first,tmp,2)) 
+                    return true;
+			}
+			return false;
+		}
+		else
+		{
+			string sum=to_string(first+second);
+			if (cur==n&&cnt>2)
+				return true;
+			else if (cur<n&&sum==num.substr(cur,sum.size()))
+				return solve(num,cur+sum.size(),second,first+second,cnt+1);
+			else
+				return false;
+		}
+	}
+public:
+	bool isAdditiveNumber(string num){
+        int n=num.size();
+		if(n<=2) 
+            return false;
+        
+		return solve(num,0,-1,-1,0);
+	}
+};
