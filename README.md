@@ -1,1 +1,1 @@
-# Here are codes for practices from Leetcode, Uva oj... just as personal notes
+# Here are codes for practices from Leetcode, UVa OJ... just as personal notes
